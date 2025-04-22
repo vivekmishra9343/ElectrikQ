@@ -21,7 +21,7 @@ const EVChargingHero = () => {
           >
             Search for destination
           </Button>
-          <Button 
+          <Button   onClick={() => navigate("/host-station-registration")}
             className=" bg-green-500 hover:bg-green-700 text-white font-medium px-8 py-6 text-lg rounded-md"
           >
             Host the charging station
