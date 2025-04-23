@@ -119,11 +119,11 @@ const MapComponent = ({ start, destination,vehicleModel,batteryLevel,batteryHeal
                 L.latLng(nearestStationEnd[0], nearestStationEnd[1]),
                 L.latLng(destination[1], destination[0])
             ],
-            lineOptions: {
-                styles: [
-                    { color: 'blue', opacity: 0.8, weight: 6 }
-                ]
-            },
+            // lineOptions: {
+            //     styles: [
+            //         { color: 'blue', opacity: 0.8, weight: 6 }
+            //     ]
+            // },
             routeWhileDragging: true,
         })
         .on('routesfound', function (e) {
@@ -137,7 +137,88 @@ const MapComponent = ({ start, destination,vehicleModel,batteryLevel,batteryHeal
                     console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
                 })
                 .addTo(map);
+// condition of coverage percentage
+                if(coveragePercent>100){
 
+                    control= L.Routing.control({
+                        waypoints: [
+                            L.latLng(start[1], start[0]),               // lat, lng
+                            // L.latLng(nearestStationEnd[0], nearestStationEnd[1]),
+                            L.latLng(destination[1], destination[0])
+                        ],
+                        lineOptions: {
+                            styles: [
+                                { color: 'blue', opacity: 0.8, weight: 6 }
+                            ]
+                        },
+                        routeWhileDragging: true,
+                    })
+                    .on('routesfound', function (e) {
+                                // const summary = e.routes[0].summary;
+                                // console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+                                // // actualDistance = (summary.totalDistance / 1000).toFixed(2);
+                                // const distance = (summary.totalDistance / 1000).toFixed(2);
+                                // const percent = ((estimation / distance) * 100).toFixed(2);
+                                // setActualDistance(distance)
+                                // setCoveragePercent(percent)
+                                // console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+                            })
+                            .addTo(map);
+                }
+                else if(coveragePercent>50){
+                    control2= L.Routing.control({
+                        waypoints: [
+                            L.latLng(start[1], start[0]),               // lat, lng
+                            L.latLng(nearestStationEnd[0], nearestStationEnd[1]),
+                            L.latLng(destination[1], destination[0])
+                        ],
+                        lineOptions: {
+                            styles: [
+                                { color: 'blue', opacity: 0.8, weight: 6 }
+                            ]
+                        },
+                        routeWhileDragging: true,
+                    })
+                    .on('routesfound', function (e) {
+                                // const summary = e.routes[0].summary;
+                                // console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+                                // // actualDistance = (summary.totalDistance / 1000).toFixed(2);
+                                // const distance = (summary.totalDistance / 1000).toFixed(2);
+                                // const percent = ((estimation / distance) * 100).toFixed(2);
+                                // setActualDistance(distance)
+                                // setCoveragePercent(percent)
+                                // console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+                                console.log("station at the end");
+                            })
+                            .addTo(map);
+                }
+                else if(coveragePercent<50 ){
+                    control2= L.Routing.control({
+                        waypoints: [
+                            L.latLng(start[1], start[0]),               // lat, lng
+                            L.latLng(nearestStation[0], nearestStation[1]),
+                            L.latLng(destination[1], destination[0])
+                        ],
+                        lineOptions: {
+                            styles: [
+                                { color: 'blue', opacity: 0.8, weight: 6 }
+                            ]
+                        },
+                        routeWhileDragging: true,
+                    })
+                    .on('routesfound', function (e) {
+                                // const summary = e.routes[0].summary;
+                                // console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+                                // // actualDistance = (summary.totalDistance / 1000).toFixed(2);
+                                // const distance = (summary.totalDistance / 1000).toFixed(2);
+                                // const percent = ((estimation / distance) * 100).toFixed(2);
+                                // setActualDistance(distance)
+                                // setCoveragePercent(percent)
+                                // console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+                                console.log("Station at front");
+                            })
+                            .addTo(map);
+                }
 
 
 
