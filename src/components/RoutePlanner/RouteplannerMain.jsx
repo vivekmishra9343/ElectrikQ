@@ -9,11 +9,18 @@ const RoutePlannerMain = () => {
   const [destination, setDestination] = useState("");
   const [currentLocation, setCurrentLocation] = useState(null);
   const [currentLocationAddress, setCurrentLocationAddress] = useState("");
-  const [destinationAddress, setDestinationAddress] = useState("");     
+  const [destinationAddress, setDestinationAddress] = useState("");
   const [loadingLocation, setLoadingLocation] = useState(true);
 
+  const [vehicleModel, setVehicleModel] = useState("2W");
+  const [batteryLevel, setBatteryLevel] = useState(80);
+  const [persons, setPersons] = useState(1);
+  const [batteryHealth, setBatteryHealth] = useState(100);
+  const [preferredTime, setPreferredTime] = useState("");
+  const [routePreference, setRoutePreference] = useState("Fastest Route");
+
   const API_KEY = import.meta.env.VITE_APP_GEO_API_KEY;
- 
+
 
   // useEffect(() => {
   //   if (navigator.geolocation) {
@@ -42,25 +49,25 @@ const RoutePlannerMain = () => {
       alert("Please enter both origin and destination.");
       return;
     }
-  
+
     try {
       console.log("Fetching coordinates...");
-      
+
       const originCoords = await getCoordinates(currentLocationAddress, API_KEY);
       console.log("Origin coords:", originCoords);
       setCurrentLocation(originCoords);
-  
+
       const destineCoords = await getCoordinates(destinationAddress, API_KEY);
       console.log("Destination coords:", destineCoords);
       setDestination(destineCoords);
-  
+
       console.log("Start Node", originCoords);
       console.log("End Node", destineCoords);
     } catch (err) {
       console.error("Error fetching coordinates:", err);
     }
   };
-  
+
 
   return (
     <div className="w-full flex flex-col lg:flex-row min-h-[80vh] bg-gray-100 rounded-xl shadow-lg p-4 gap-4">
@@ -73,17 +80,17 @@ const RoutePlannerMain = () => {
             placeholder="Enter starting point"
             value={currentLocationAddress}
             onChange={(e) => {
-              
+
               setCurrentLocationAddress(e.target.value);
               // setCurrentLocationAddress("Alliance University - Central Campus, Chikkahadage Cross Chandapura-Anekal, Main Road, Bengaluru, Karnataka 562106")
             }}
           />
           <label className="block text-xs font-semibold mb-1">Destination</label>
-          <input className="w-full border rounded px-2 py-1 text-xs" 
-          placeholder="Enter destination" 
-          value={destinationAddress}
+          <input className="w-full border rounded px-2 py-1 text-xs"
+            placeholder="Enter destination"
+            value={destinationAddress}
             onChange={(e) => {
-              
+
               setDestinationAddress(e.target.value);
               // setDestinationAddress("Mahatma Gandhi Rd, near Cubbon Road, Shivaji Nagar, Bengaluru, Karnataka 560001")
             }}
@@ -92,28 +99,54 @@ const RoutePlannerMain = () => {
 
         <div>
           <label className="block text-xs font-semibold mb-1">Vehicle Model</label>
-          <select className="w-full border rounded px-2 py-1 mb-1 text-xs">
-            <option>Tesla Model 3</option>
-            <option>Tesla Model S</option>
-            <option>Tesla Model X</option>
+          <select
+            className="w-full border rounded px-2 py-1 mb-1 text-xs"
+            value={vehicleModel}
+            onChange={(e) => setVehicleModel(e.target.value)}
+          >
+            <option value="2W">2W</option>
+            <option value="4W">4W</option>
           </select>
           <div className="flex items-center gap-1 text-xs mb-1">
-            <span className="font-semibold">Battery: 80%</span>
-            <input type="range" min="0" max="100" value="80" readOnly className="flex-1" />
+            <span className="font-semibold">Battery: {batteryLevel}%</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={batteryLevel}
+              onChange={(e) => setBatteryLevel(Number(e.target.value))}
+              className="flex-1"
+            />
           </div>
           <div className="flex gap-1 mb-1">
             <div className="flex-1">
               <label className="text-xs">Persons:</label>
-              <input className="w-full border rounded px-1 py-0.5 text-xs" type="number" min="1" value="1" readOnly />
+              <input
+                className="w-full border rounded px-1 py-0.5 text-xs"
+                type="number"
+                min="1"
+                value={persons}
+                onChange={(e) => setPersons(Number(e.target.value))}
+              />
             </div>
             <div className="flex-1">
-              <label className="text-xs">Battery health:</label>
-              <input className="w-full border rounded px-1 py-0.5 text-xs" type="text" value="100%" readOnly />
+              <label className="text-xs">Battery health(in %):</label>
+              <input
+                className="w-full border rounded px-1 py-0.5 text-xs"
+                type="text"
+                value={batteryHealth}
+                onChange={(e) => setBatteryHealth(e.target.value)}
+              />
             </div>
           </div>
           <div className="flex gap-1">
             <Button className="flex-1 bg-green-500 hover:bg-green-600 text-xs py-1">Now</Button>
-            <input className="flex-1 border rounded px-1 py-0.5 text-xs" type="time" />
+            <input
+              className="flex-1 border rounded px-1 py-0.5 text-xs"
+              type="time"
+              value={preferredTime}
+              onChange={(e) => setPreferredTime(e.target.value)}
+            />
           </div>
           <Button onClick={handlePlanRoute} className="w-full mt-1 bg-emerald-600 hover:bg-emerald-700 text-xs py-1.5">Plan My Route</Button>
         </div>
@@ -121,11 +154,19 @@ const RoutePlannerMain = () => {
         <div>
           <div className="font-semibold mb-1 text-xs">Route Preferences</div>
           <div className="flex flex-col gap-0.5 text-xs">
-            <label><input type="radio" name="route" defaultChecked /> Fastest Route</label>
-            <label><input type="radio" name="route" /> Most Efficient</label>
-            <label><input type="radio" name="route" /> Fewest Stops</label>
-            <label><input type="radio" name="route" /> Cheapest</label>
-          </div>
+  {["Fastest Route", "Most Efficient", "Fewest Stops", "Cheapest"].map((option) => (
+    <label key={option}>
+      <input
+        type="radio"
+        name="route"
+        value={option}
+        checked={routePreference === option}
+        onChange={() => setRoutePreference(option)}
+      />{" "}
+      {option}
+    </label>
+  ))}
+</div>
         </div>
 
         <div>
@@ -165,7 +206,15 @@ const RoutePlannerMain = () => {
       <div className="w-full lg:w-2/3 flex flex-col gap-4">
         <div className="bg-blue-100 rounded-lg flex-1 min-h-[300px]">
           {currentLocation && destination ? (
-            <MapComponent start={currentLocation} destination={destination} />
+            <MapComponent
+             start={currentLocation} 
+             destination={destination}
+             vehicleModel={vehicleModel}
+             batteryLevel={batteryLevel}
+             batteryHealth={batteryHealth}
+             persons={persons}
+             routePreference={routePreference}
+              />
           ) : (
             <div className="flex items-center justify-center h-full">
               <span className="text-lg text-blue-400 font-bold">

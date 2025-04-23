@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -31,7 +31,21 @@ const chargingStations = [
     [12.975668, 77.6413089], [13.0415766, 77.6204588], [12.9947371, 77.6993007], [12.9775829, 77.6389895], [12.9733967, 77.6357561], [12.9733738, 77.6357554], [12.9137732, 77.6441735], [12.9712776, 77.6078832], [12.9764825, 77.6268299], [12.9154635, 77.6158909], [12.9576825, 77.5684466], [12.9805484, 77.5978893], [12.9322172, 77.6142725], [12.916907, 77.6102709], [12.9710109, 77.597788], [12.9736666, 77.5830855], [12.9301946, 77.6148303], [12.9362684, 77.6076884], [12.9337755, 77.6236693], [12.9285835, 77.6241904], [12.9311453, 77.6238461], [12.977855, 77.5812757], [13.027001, 77.5425776], [12.9810756, 77.5966804], [13.0000143, 77.5499059], [12.965406, 77.6002473], [12.9781045, 77.6389105], [12.8894274, 77.5563647], [12.9383537, 77.5802162], [12.9217078, 77.5805052], [13.0330528, 77.533757], [12.993427, 77.7043141], [12.993427, 77.7043141], [12.97254135, 77.70781045000001], [12.951750605252137, 77.70245823562607]
 ];
 
-const MapComponent = ({ start, destination }) => {
+const MapComponent = ({ start, destination,vehicleModel,batteryLevel,batteryHealth,persons,routePreference }) => {
+
+    const [actualDistance, setActualDistance] = useState(null);
+    const [coveragePercent, setCoveragePercent] = useState(null);
+
+    // approximate distance calculations
+    const calculateRange = () => {
+        const baseRange = vehicleModel === "2W" ? 100 : 300;
+        const healthFactor = batteryHealth / 100;
+        const batteryFactor = batteryLevel / 100;
+        const efficiencyPenalty = 1 - (persons - 1) * 0.05;
+        const range = baseRange * batteryFactor * healthFactor * efficiencyPenalty;
+        // setEstimatedRange(range.toFixed(2));
+        return range.toFixed(2);
+      };
     // functions layer
     function haversineDistance(coord1, coord2) {
         const R = 6371e3; // meters
@@ -70,16 +84,25 @@ const MapComponent = ({ start, destination }) => {
 
     let nearestStation = nearestStations[3].coords;
     // console.log("Nearest station: ", nearestStation);
-    console.log(nearestStations);
+    // console.log(nearestStations);
 
     let nearestStationEnd = nearestStationsEnd[3].coords;
     // console.log("Nearest Station at the end", nearestStationEnd);
     // console.log("Bhai please hoga", start);
 
+    const estimation = calculateRange();
+    
+    console.log(estimation)
+    let mainControl;
     let control;
     let control2;
+    
 
     useEffect(() => {
+
+        
+
+
         const map = L.map('map').setView([start[1], start[0]], 13);
 
 
@@ -90,7 +113,7 @@ const MapComponent = ({ start, destination }) => {
         L.marker([start[1], start[0]]).addTo(map).bindPopup('Your current location').openPopup();
         L.marker([destination[1], destination[0]]).addTo(map).bindPopup('Your final location').openPopup();
 
-        control = L.Routing.control({
+        mainControl= L.Routing.control({
             waypoints: [
                 L.latLng(start[1], start[0]),               // lat, lng
                 L.latLng(nearestStationEnd[0], nearestStationEnd[1]),
@@ -103,28 +126,58 @@ const MapComponent = ({ start, destination }) => {
             },
             routeWhileDragging: true,
         })
-            .on('routesfound', function (e) {
-                const summary = e.routes[0].summary;
-                console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
-                console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
-            })
-            .addTo(map);
+        .on('routesfound', function (e) {
+                    const summary = e.routes[0].summary;
+                    console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+                    // actualDistance = (summary.totalDistance / 1000).toFixed(2);
+                    const distance = (summary.totalDistance / 1000).toFixed(2);
+                    const percent = ((estimation / distance) * 100).toFixed(2);
+                    setActualDistance(distance)
+                    setCoveragePercent(percent)
+                    console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+                })
+                .addTo(map);
 
-        control2 = L.Routing.control({
-            waypoints: [
-                L.latLng(start[1], start[0]),               // lat, lng
-                L.latLng(nearestStation[0], nearestStation[1]),
-                L.latLng(destination[1], destination[0])
-            ],
+
+
+
+        // control = L.Routing.control({
+        //     waypoints: [
+        //         L.latLng(start[1], start[0]),               // lat, lng
+        //         L.latLng(nearestStationEnd[0], nearestStationEnd[1]),
+        //         L.latLng(destination[1], destination[0])
+        //     ],
+        //     lineOptions: {
+        //         styles: [
+        //             { color: 'blue', opacity: 0.8, weight: 6 }
+        //         ]
+        //     },
+        //     routeWhileDragging: true,
+        // })
+        //     .on('routesfound', function (e) {
+        //         const summary = e.routes[0].summary;
+        //         console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+        //         console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+        //     })
+        //     .addTo(map);
+
+        // control2 = L.Routing.control({
+        //     waypoints: [
+        //         L.latLng(start[1], start[0]),               // lat, lng
+        //         L.latLng(nearestStation[0], nearestStation[1]),
+        //         L.latLng(destination[1], destination[0])
+        //     ],
             
-            routeWhileDragging: true,
-        })
-            .on('routesfound', function (e) {
-                const summary = e.routes[0].summary;
-                console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
-                console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
-            })
-            .addTo(map);
+        //     routeWhileDragging: true,
+        // })
+        //     .on('routesfound', function (e) {
+        //         const summary = e.routes[0].summary;
+        //         console.log('Total Distance:', (summary.totalDistance / 1000).toFixed(2), 'km');
+                
+        //         console.log('Total Time:', (summary.totalTime / 60).toFixed(2), 'minutes');
+        //     })
+        //     .addTo(map);
+        setCoveragePercent((estimation / actualDistance) * 100);
 
         L.marker(nearestStation, { icon: myIcon }).addTo(map).bindPopup("EV Charging Station");
         L.marker(nearestStationEnd, { icon: myIcon }).addTo(map).bindPopup("EV Charging Station");
@@ -134,7 +187,12 @@ const MapComponent = ({ start, destination }) => {
         };
     }, [start, destination]);
 
-    return <div id="map" style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} />;
+    return (
+        <>
+          <p>Estimated runnig distance: {estimation} KM || Actual Distance: {actualDistance} || Coverage Percentage: {coveragePercent}</p>
+          <div id="map" style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }} />
+        </>
+      );
 };
 
 export default MapComponent;
