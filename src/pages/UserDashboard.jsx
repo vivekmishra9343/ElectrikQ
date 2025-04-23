@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import {
@@ -8,6 +8,7 @@ import {
   FaChargingStation,
   FaClock,
   FaMoneyBillWave,
+  FaCalendarAlt,
 } from "react-icons/fa";
 
 const UserDashboard = () => {
@@ -20,6 +21,25 @@ const UserDashboard = () => {
     averageRating: 4.8,
     totalSpent: 12500,
   };
+
+  const [activeBookings, setActiveBookings] = useState([
+    {
+      id: 1,
+      stationName: "Tata Power Charging Station",
+      location: "Koramangala, Bangalore",
+      date: "2024-03-20",
+      time: "14:30 - 15:45",
+      status: "Pending",
+    },
+    {
+      id: 2,
+      stationName: "EV Station Hub",
+      location: "Indiranagar, Bangalore",
+      date: "2024-03-21",
+      time: "10:15 - 11:30",
+      status: "Confirmed",
+    },
+  ]);
 
   const recentBookings = [
     {
@@ -81,6 +101,12 @@ const UserDashboard = () => {
     },
   ];
 
+  const handleCancelBooking = (bookingId) => {
+    setActiveBookings(
+      activeBookings.filter((booking) => booking.id !== bookingId)
+    );
+  };
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-black via-[#1a0c02] to-[#F97316]'>
       <Navbar />
@@ -126,6 +152,51 @@ const UserDashboard = () => {
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {/* Active Bookings */}
+          <div className='bg-white/10 backdrop-blur-lg rounded-xl shadow-xl p-6 text-white'>
+            <h2 className='text-2xl font-bold mb-4'>Active Bookings</h2>
+            <div className='space-y-4'>
+              {activeBookings.map((booking) => (
+                <div key={booking.id} className='bg-white/5 rounded-lg p-4'>
+                  <div className='flex items-start justify-between mb-2'>
+                    <div>
+                      <h3 className='font-semibold'>{booking.stationName}</h3>
+                      <div className='flex items-center gap-2 text-gray-300 text-sm'>
+                        <FaMapMarkerAlt />
+                        <span>{booking.location}</span>
+                      </div>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        booking.status === "Confirmed"
+                          ? "bg-green-500 text-white"
+                          : "bg-yellow-500 text-white"
+                      }`}
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
+                  <div className='grid grid-cols-2 gap-4 text-sm'>
+                    <div>
+                      <p className='text-gray-300'>Date</p>
+                      <p className='font-medium'>{booking.date}</p>
+                    </div>
+                    <div>
+                      <p className='text-gray-300'>Time</p>
+                      <p className='font-medium'>{booking.time}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleCancelBooking(booking.id)}
+                    className='mt-4 w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors'
+                  >
+                    Cancel Booking
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Recent Bookings */}
           <div className='bg-white/10 backdrop-blur-lg rounded-xl shadow-xl p-6 text-white'>
             <h2 className='text-2xl font-bold mb-4'>Recent Bookings</h2>

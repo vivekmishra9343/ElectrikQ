@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import BookingModal from "@/components/BookingModal";
 import { stations } from "@/data/stations";
 import {
   FaChargingStation,
@@ -15,6 +16,8 @@ import {
 const StationFinder = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedStation, setSelectedStation] = useState(null);
 
   const filteredStations = stations.filter((station) => {
     const typeMatch = selectedType === "all" || station.type === selectedType;
@@ -30,6 +33,13 @@ const StationFinder = () => {
         ? prev.filter((a) => a !== amenity)
         : [...prev, amenity]
     );
+  };
+
+  const handleBookSlot = (bookingData) => {
+    // Here you would typically make an API call to save the booking
+    console.log("Booking data:", bookingData);
+    // For now, we'll just show an alert
+    alert("Slot booked successfully!");
   };
 
   return (
@@ -184,12 +194,29 @@ const StationFinder = () => {
                     ))}
                   </div>
                 </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedStation(station);
+                    setIsBookingModalOpen(true);
+                  }}
+                  className='w-full mt-4 bg-[#F97316] text-white py-2 px-4 rounded-md hover:bg-[#EA580C] transition-colors'
+                >
+                  Book Slot
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        station={selectedStation}
+        onBook={handleBookSlot}
+      />
     </div>
   );
 };
