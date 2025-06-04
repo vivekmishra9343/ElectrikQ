@@ -78,8 +78,9 @@ ElectrikQ is a comprehensive platform that revolutionizes the EV charging ecosys
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/ElectrikQ.git
+git clone [https://github.com/yourusername/ElectrikQ.git](https://github.com/vivekmishra9343/ElectrikQ)
 cd ElectrikQ
+cd client
 ```
 
 2. Install dependencies
